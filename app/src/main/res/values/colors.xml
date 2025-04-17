@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="snow">#FFFAFA</color>
+    <color name="cornflowerBlue">#6495ED</color>
+    <color name="aliceBlue">#F0F8FF</color>
+    <color name="lightBlue">#ADD8E6</color>
+    <color name="lightGoldenRodYellow">#FAFAD2</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

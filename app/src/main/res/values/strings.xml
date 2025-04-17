@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">photos49</string>
+    <string name="photos49">Photos49</string>
+    <string name="add_album">Add Album</string>
+    <string name="album_list">Album list</string>
+    <string name="album_name">Album Name</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="album_options">Album Options</string>
+    <string name="album_menu">Album menu</string>
+    <string name="albums">Albums</string>
 </resources>
