@@ -1,5 +1,6 @@
 package com.example.photos49;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.example.photos49.util.DataStorage;
 import com.example.photos49.adapters.AlbumAdapter;
 import com.example.photos49.models.Album;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,33 +25,25 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView albumRecyclerView;
     private List<Album> albums;
     private AlbumAdapter albumAdapter;
-    private FloatingActionButton fabAddAlbum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        albumRecyclerView = findViewById(R.id.albumRecyclerView);
-        fabAddAlbum = findViewById(R.id.fabAddAlbum);
+        RecyclerView albumRecyclerView = findViewById(R.id.albumRecyclerView);
+        FloatingActionButton fabAddAlbum = findViewById(R.id.fabAddAlbum);
 
-        albums = new ArrayList<>();
+        albums = DataStorage.loadAlbumsFromStorage(this);
         albumRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        albumAdapter = new AlbumAdapter(albums, new AlbumAdapter.OnAlbumClickListener() {
-            @Override
-            public void onAlbumClick(Album album) {
-                Toast.makeText(MainActivity.this, "Clicked on: " + album.getName(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onAlbumMenuClick(Album album, View view) {
-                showAlbumContextMenu(album, view);
-            }
-        });
+        albumAdapter = new AlbumAdapter(
+                albums,
+                album -> onAlbumClick(album),
+                (album, view) -> showAlbumContextMenu(album, view)
+        );
 
         albumRecyclerView.setAdapter(albumAdapter);
         fabAddAlbum.setOnClickListener(v -> showCreateAlbumDialog());
@@ -62,10 +56,10 @@ public class MainActivity extends AppCompatActivity {
         popup.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.rename_album) {
-                Toast.makeText(this, "Rename option selected", Toast.LENGTH_SHORT).show();
+                showRenameAlbumDialog(album);
                 return true;
             } else if (itemId == R.id.delete_album) {
-                Toast.makeText(this, "Delete option selected", Toast.LENGTH_SHORT).show();
+                deleteAlbum(album);
                 return true;
             }
             return false;
@@ -108,6 +102,56 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private void showRenameAlbumDialog(Album album) {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(album.getName());
+
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(50, 20, 50, 20);
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Rename Album")
+                .setView(container)
+                .setPositiveButton("Rename", (dialog, which) -> {
+                    String newName = input.getText().toString().trim();
+
+                    if (newName.isEmpty()) {
+                        Toast.makeText(this, "Album name can't be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (newName.equals(album.getName())) {
+                        return;
+                    }
+
+                    if (isDuplicateName(newName)) {
+                        Toast.makeText(this, "An album with that name already exists", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    album.setName(newName);
+                    albumAdapter.notifyDataSetChanged();
+                    DataStorage.saveAlbumsToStorage(this, albums);
+                    Toast.makeText(this, "Album renamed", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void deleteAlbum(Album album) {
+        albums.remove(album);
+        albumAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "Album deleted", Toast.LENGTH_SHORT).show();
+    }
+
     private boolean isDuplicateName(String name) {
         for (Album a : albums) {
             if (a.getName().equalsIgnoreCase(name)) return true;
@@ -118,30 +162,11 @@ public class MainActivity extends AppCompatActivity {
     private void addAlbumToList(String albumName) {
         Album newAlbum = new Album(albumName);
         albumAdapter.addAlbum(newAlbum);
+        DataStorage.saveAlbumsToStorage(this, albums);
     }
 
     public void onAlbumClick(Album album) {
         Toast.makeText(this, "Clicked on: " + album.getName(), Toast.LENGTH_SHORT).show();
         // TODO: Launch album detail screen
-    }
-
-    public void onAlbumMenuClick(Album album, View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.inflate(R.menu.album_context_menu);
-
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.rename_album) {
-                Toast.makeText(this, "Rename option selected", Toast.LENGTH_SHORT).show();
-                // TODO: Rename album logic
-                return true;
-            } else if (item.getItemId() == R.id.delete_album) {
-                Toast.makeText(this, "Delete option selected", Toast.LENGTH_SHORT).show();
-                // TODO: Delete album logic
-                return true;
-            }
-            return false;
-        });
-
-        popup.show();
     }
 }

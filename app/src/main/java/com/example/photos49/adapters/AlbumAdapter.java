@@ -15,29 +15,37 @@ import com.example.photos49.models.Album;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
     private final List<Album> albums;
-    private final OnAlbumClickListener listener;
+    private final AlbumClickCallback clickCallback;
+    private final AlbumMenuCallback menuCallback;
 
-    public interface OnAlbumClickListener {
-        void onAlbumClick(Album album);
-        void onAlbumMenuClick(Album album, View view);
+    // Functional interfaces for actions
+    public interface AlbumClickCallback {
+        void onClick(Album album);
     }
 
-    public AlbumAdapter(List<Album> albums, OnAlbumClickListener listener) {
+    public interface AlbumMenuCallback {
+        void onMenuClick(Album album, View view);
+    }
+
+    public AlbumAdapter(List<Album> albums,
+                        AlbumClickCallback clickCallback,
+                        AlbumMenuCallback menuCallback) {
         this.albums = albums;
-        this.listener = listener;
+        this.clickCallback = clickCallback;
+        this.menuCallback = menuCallback;
     }
 
     @NonNull
     @Override
     public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.album_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.album_item, parent, false);
         return new AlbumViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AlbumViewHolder holder, int position) {
-        Album album = albums.get(position);
-        holder.bind(album);
+        holder.bind(albums.get(position));
     }
 
     @Override
@@ -64,14 +72,14 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
             albumTitle.setText(album.getName());
 
             itemView.setOnClickListener(v -> {
-                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    listener.onAlbumClick(albums.get(getAdapterPosition()));
+                if (getAdapterPosition() != RecyclerView.NO_POSITION && clickCallback != null) {
+                    clickCallback.onClick(album);
                 }
             });
 
             albumMenu.setOnClickListener(v -> {
-                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    listener.onAlbumMenuClick(albums.get(getAdapterPosition()), albumMenu);
+                if (getAdapterPosition() != RecyclerView.NO_POSITION && menuCallback != null) {
+                    menuCallback.onMenuClick(album, albumMenu);
                 }
             });
         }
