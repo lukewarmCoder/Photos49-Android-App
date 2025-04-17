@@ -42,4 +42,14 @@ public class DataStorage {
             Toast.makeText(context, "Failed to save albums", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public static Album getAlbumByName(Context context, String albumName) {
+        List<Album> albums = loadAlbumsFromStorage(context);
+        for (Album album : albums) {
+            if (album.getName().equalsIgnoreCase(albumName)) {
+                return album;
+            }
+        }
+        return null; // Or throw an exception / show error if album not found
+    }
 }

@@ -9,4 +9,6 @@
     <string name="album_options">Album Options</string>
     <string name="album_menu">Album menu</string>
     <string name="albums">Albums</string>
+    <string name="photo_list">Photo List</string>
+    <string name="add_photo">Add Photo</string>
 </resources>

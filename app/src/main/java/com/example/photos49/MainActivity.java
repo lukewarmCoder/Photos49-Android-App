@@ -1,6 +1,7 @@
 package com.example.photos49;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -9,8 +10,9 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.example.photos49.util.DataStorage;
+import com.example.photos49.activities.AlbumActivity;
 import com.example.photos49.adapters.AlbumAdapter;
+import com.example.photos49.util.DataStorage;
 import com.example.photos49.models.Album;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -20,7 +22,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -166,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onAlbumClick(Album album) {
-        Toast.makeText(this, "Clicked on: " + album.getName(), Toast.LENGTH_SHORT).show();
-        // TODO: Launch album detail screen
+        Intent intent = new Intent(this, AlbumActivity.class);
+        intent.putExtra("album_name", album.getName());
+        startActivity(intent);
     }
 }
