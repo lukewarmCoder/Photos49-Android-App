@@ -8,10 +8,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -299,9 +301,18 @@ public class PhotoDisplayActivity extends AppCompatActivity {
         final EditText input = new EditText(this);
         input.setHint("Enter tag name");
 
-        new AlertDialog.Builder(this)
-                .setTitle("Add Tag")
-                .setView(input)
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(50, 20, 50, 20);
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Add tag")
+                .setView(container)
                 .setPositiveButton("Add", (dialog, which) -> {
                     String tagName = input.getText().toString().trim();
                     if (!tagName.isEmpty()) {
@@ -324,6 +335,67 @@ public class PhotoDisplayActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+
+//        new AlertDialog.Builder(this)
+//                .setTitle("Add Tag")
+//                .setView(input)
+//                .setPositiveButton("Add", (dialog, which) -> {
+//                    String tagName = input.getText().toString().trim();
+//                    if (!tagName.isEmpty()) {
+//                        Photo currentPhoto = photos.get(currentPosition);
+//                        currentPhoto.addTag(tagName);
+//
+//                        // Save changes
+//                        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
+//                        for (Album a : albums) {
+//                            if (a.getName().equals(albumTitle)) {
+//                                a.setPhotos(photos);
+//                                break;
+//                            }
+//                        }
+//                        DataStorage.saveAlbumsToStorage(this, albums);
+//
+//                        // Update tag display
+//                        displayTags();
+//                    }
+//                })
+//                .setNegativeButton("Cancel", null)
+//                .show();
+//    }
+
+//    private void showCreateAlbumDialog() {
+//        final EditText input = new EditText(this);
+//        input.setInputType(InputType.TYPE_CLASS_TEXT);
+//        input.setHint("Album Name");
+//
+//        // Padding via FrameLayout container
+//        FrameLayout container = new FrameLayout(this);
+//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+//                ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT
+//        );
+//        params.setMargins(50, 20, 50, 20);
+//        input.setLayoutParams(params);
+//        container.addView(input);
+//
+//        new androidx.appcompat.app.AlertDialog.Builder(this)
+//                .setTitle("Create New Album")
+//                .setView(container)
+//                .setPositiveButton("Create", (dialog, which) -> {
+//                    String albumName = input.getText().toString().trim();
+//                    if (albumName.isEmpty()) {
+//                        Toast.makeText(this, "Album name can't be empty", Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
+//                    if (isDuplicateName(albumName)) {
+//                        Toast.makeText(this, "Album with this name already exists", Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
+//                    addAlbumToList(albumName);
+//                })
+//                .setNegativeButton("Cancel", null)
+//                .show();
+//    }
     }
 
     @Override

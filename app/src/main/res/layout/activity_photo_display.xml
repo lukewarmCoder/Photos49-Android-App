@@ -107,12 +107,13 @@
         </HorizontalScrollView>
 
         <!-- Action buttons -->
+        <!-- Action buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <Button
                 android:id="@+id/btnMove"
@@ -129,14 +130,20 @@
                 android:text="@string/add_tag"
                 android:textSize="12sp" />
 
-            <Button
+            <!-- Spacer pushes delete button to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageButton
                 android:id="@+id/btnDelete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/delete"
-                android:textColor="#FF0000"
-                android:textSize="12sp" />
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/delete"
+                android:src="@drawable/ic_baseline_delete_24"
+                app:tint="@android:color/holo_red_light" />
         </LinearLayout>
     </LinearLayout>
 
