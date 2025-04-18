@@ -13,7 +13,7 @@ public class Photo implements Serializable {
     private String id;
     private String uri;
     private List<Tag> tags;
-    private String caption;
+
 
     public Photo(Uri imageUri) {
         this.id = UUID.randomUUID().toString();
@@ -29,25 +29,22 @@ public class Photo implements Serializable {
         return uri;
     }
 
-//    public Bitmap getThumbnail() {
-//        return thumbnail;
-//    }
-//
-//    public void setThumbnail(Bitmap thumbnail) {
-//        this.thumbnail = thumbnail;
-//    }
-
     public List<Tag> getTags() {
         return tags;
     }
 
-//    public String getAlbumName() {
-//        return albumName;
-//    }
-//
-//    public void setAlbumName(String albumName) {
-//        this.albumName = albumName;
-//    }
+    public List<String> getTagStrings() {
+        List<String> tagStrings = new ArrayList<>();
+        for (Tag t : tags) {
+            tagStrings.add(t.toString());
+        }
+        return tagStrings;
+    }
+
+    public void addTag(String tag) {
+        // todo
+    }
+
 
     @Override
     public boolean equals(Object obj) {

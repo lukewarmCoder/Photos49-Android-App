@@ -147,7 +147,7 @@ public class AlbumActivity extends AppCompatActivity {
 
         photoRecyclerView = findViewById(R.id.photoRecyclerView); // Make sure this ID exists in your XML
         photos = album.getPhotos(); // assign to class variable
-        adapter = new PhotoAdapter(this, photos, (view, photo, position) -> showPhotoMenu(view, photo, position));
+        adapter = new PhotoAdapter(this, photos, albumTitle, (view, photo, position) -> showPhotoMenu(view, photo, position));
         photoRecyclerView.setAdapter(adapter);
         photoRecyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // or LinearLayoutManager
 
@@ -160,6 +160,27 @@ public class AlbumActivity extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             pickPhotoLauncher.launch(intent);
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Reload album data from storage
+        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
+        for (Album a : albums) {
+            if (a.getName().equals(albumTitle)) {
+                album = a;
+                photos = album.getPhotos(); // Update the photos list reference
+                break;
+            }
+        }
+
+        // Refresh adapter with new data
+        if (adapter != null) {
+            adapter = new PhotoAdapter(this, photos, albumTitle, (view, photo, position) -> showPhotoMenu(view, photo, position));
+            photoRecyclerView.setAdapter(adapter);
+        }
     }
 
     @Override

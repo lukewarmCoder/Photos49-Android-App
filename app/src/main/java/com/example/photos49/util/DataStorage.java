@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
-
-public class DataStorage {
+import java.util.List;public class DataStorage {
     private static final String ALBUM_FILE_NAME = "albums.json";
 
     @SuppressWarnings("unchecked")
@@ -32,14 +30,23 @@ public class DataStorage {
 
     public static void saveAlbumsToStorage(Context context, List<Album> albums) {
         try {
+            // Create a deep copy of the albums list to avoid reference issues
+            List<Album> albumsCopy = new ArrayList<>();
+            for (Album album : albums) {
+                // Make sure all albums have their photos lists initialized
+                if (album.getPhotos() == null) {
+                    album.setPhotos(new ArrayList<>());
+                }
+                albumsCopy.add(album);
+            }
+
             FileOutputStream fos = context.openFileOutput(ALBUM_FILE_NAME, Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(albums);
+            oos.writeObject(albumsCopy);
             oos.close();
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Failed to save albums", Toast.LENGTH_SHORT).show();
         }
     }
 

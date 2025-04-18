@@ -162,9 +162,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addAlbumToList(String albumName) {
+        // Create new album
         Album newAlbum = new Album(albumName);
-        albumAdapter.addAlbum(newAlbum);
+
+        // Add to the list and update adapter
+        albums.add(newAlbum);
+        albumAdapter.notifyItemInserted(albums.size() - 1);
+
+        // Save all albums to storage
         DataStorage.saveAlbumsToStorage(this, albums);
+
     }
 
     public void onAlbumClick(Album album) {

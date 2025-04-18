@@ -1,6 +1,7 @@
 package com.example.photos49.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photos49.R;
+import com.example.photos49.activities.PhotoDisplayActivity;
 import com.example.photos49.models.Photo;
 
 import java.util.List;
@@ -27,11 +29,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private Context context;
     private List<Photo> photos;
     private OnPhotoActionListener listener;
+    private String albumTitle;
 
-    public PhotoAdapter(Context context, List<Photo> photos, OnPhotoActionListener listener) {
+    public PhotoAdapter(Context context, List<Photo> photos, String albumTitle, OnPhotoActionListener listener) {
         this.context = context;
         this.photos = photos;
         this.listener = listener;
+        this.albumTitle = albumTitle;
     }
 
     @NonNull
@@ -52,11 +56,25 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 listener.onPhotoMenuClick(v, photo, position);
             }
         });
+
+        // Add click listener to the thumbnail to open PhotoDisplayActivity
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, PhotoDisplayActivity.class);
+            intent.putExtra("album_name", albumTitle);
+            intent.putExtra("photo_position", position);
+            context.startActivity(intent);
+        });
     }
 
     @Override
     public int getItemCount() {
         return photos.size();
+    }
+
+    // First, add this method to your PhotoAdapter class:
+    public void updateData(List<Photo> newPhotos) {
+        this.photos = newPhotos;
+        notifyDataSetChanged();
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {

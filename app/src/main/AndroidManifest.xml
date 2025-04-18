@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Photos49">
         <activity
+            android:name=".activities.PhotoDisplayActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AlbumActivity"
             android:exported="false" />
         <activity

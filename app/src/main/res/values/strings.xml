@@ -14,4 +14,12 @@
     <string name="photo_thumbnail">Photo thumbnail</string>
     <string name="photo_options">Photo options</string>
     <string name="move_to_album">Move to Album</string>
+    <string name="move">Move</string>
+    <string name="add_tag">Add Tag</string>
+    <string name="previous_photo">Previous photo</string>
+    <string name="_1_10">1/10</string>
+    <string name="next_photo">Next photo</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="photo">Photo</string>
+    <string name="photo_display">Photo display</string>
 </resources>
