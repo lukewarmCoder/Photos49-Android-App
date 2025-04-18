@@ -1,10 +1,8 @@
-package com.example.photos49;
+package com.example.photos49.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.photos49.activities.AlbumActivity;
+import com.example.photos49.R;
 import com.example.photos49.adapters.AlbumAdapter;
 import com.example.photos49.models.Photo;
 import com.example.photos49.models.Tag;
@@ -32,7 +30,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
