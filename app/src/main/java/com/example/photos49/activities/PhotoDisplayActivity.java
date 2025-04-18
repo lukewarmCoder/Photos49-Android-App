@@ -2,13 +2,16 @@ package com.example.photos49.activities; // Replace with your package name
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +19,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +34,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.photos49.R;
 import com.example.photos49.models.Album;
 import com.example.photos49.models.Photo;
+import com.example.photos49.models.Tag;
 import com.example.photos49.util.DataStorage;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,28 +141,6 @@ public class PhotoDisplayActivity extends AppCompatActivity {
     private void updatePhotoCounter() {
         if (photos != null && !photos.isEmpty()) {
             photoCounter.setText((currentPosition + 1) + "/" + photos.size());
-        }
-    }
-
-    private void displayTags() {
-        // Clear existing tags
-        tagChipGroup.removeAllViews();
-
-        // Get current photo
-        if (photos != null && currentPosition < photos.size()) {
-            Photo currentPhoto = photos.get(currentPosition);
-
-            // Assuming Photo class has a getTags() method that returns a list of tags
-            List<String> tags = currentPhoto.getTagStrings();
-            if (tags != null) {
-                for (String tag : tags) {
-                    Chip chip = new Chip(this);
-                    chip.setText(tag);
-                    chip.setTextColor(Color.WHITE);
-                    chip.setChipBackgroundColorResource(R.color.aliceBlue);
-                    tagChipGroup.addView(chip);
-                }
-            }
         }
     }
 
@@ -298,26 +283,136 @@ public class PhotoDisplayActivity extends AppCompatActivity {
             return;
         }
 
-        final EditText input = new EditText(this);
-        input.setHint("Enter tag name");
+        // Create dialog view
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_add_tag, null);
 
-        FrameLayout container = new FrameLayout(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(50, 20, 50, 20);
-        input.setLayoutParams(params);
-        container.addView(input);
+        // Initialize views
+        final RadioGroup radioGroupTagType = dialogView.findViewById(R.id.radioGroupTagType);
+        final TextInputLayout inputLayoutTagValue = dialogView.findViewById(R.id.inputLayoutTagValue);
+        final EditText editTextTagValue = dialogView.findViewById(R.id.editTextTagValue);
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Add tag")
-                .setView(container)
-                .setPositiveButton("Add", (dialog, which) -> {
-                    String tagName = input.getText().toString().trim();
-                    if (!tagName.isEmpty()) {
-                        Photo currentPhoto = photos.get(currentPosition);
-                        currentPhoto.addTag(tagName);
+        // Get current photo
+        Photo currentPhoto = photos.get(currentPosition);
+
+        // Check if location tag already exists
+        final boolean hasLocationTag = false; // Make it final here
+        for (Tag tag : currentPhoto.getTags()) {
+            if (tag.getType().equals(Tag.TYPE_LOCATION)) {
+                // Can't modify a final variable, so we need another approach
+                // hasLocationTag = true; - This would cause the error
+                break;
+            }
+        }
+
+        // Instead, let's determine this at the time it's needed
+        final boolean[] locationTagExists = {false}; // Using an array as a mutable container
+        for (Tag tag : currentPhoto.getTags()) {
+            if (tag.getType().equals(Tag.TYPE_LOCATION)) {
+                locationTagExists[0] = true;
+                break;
+            }
+        }
+
+        // Create alert dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add Tag");
+        builder.setView(dialogView);
+
+        // Set action buttons
+        builder.setPositiveButton("Add", null); // We'll override this later
+        builder.setNegativeButton("Cancel", null);
+
+        // Create and show the dialog
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Override the positive button to prevent automatic dismissal on input errors
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            // Get selected tag type
+            int selectedId = radioGroupTagType.getCheckedRadioButtonId();
+            RadioButton radioButton = dialogView.findViewById(selectedId);
+
+            if (radioButton == null) {
+                Toast.makeText(PhotoDisplayActivity.this, "Please select a tag type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            final String tagType = radioButton.getText().toString().toLowerCase();
+            final String tagValue = editTextTagValue.getText().toString().trim();
+
+            // Validate input
+            if (tagValue.isEmpty()) {
+                editTextTagValue.setError("Please enter a value");
+                return;
+            }
+
+            // Check if we're adding a location tag when one already exists
+            if (tagType.equals(Tag.TYPE_LOCATION) && locationTagExists[0]) {
+                // Confirm replacement of existing location tag
+                new AlertDialog.Builder(PhotoDisplayActivity.this)
+                        .setTitle("Replace Location Tag")
+                        .setMessage("This photo already has a location tag. Do you want to replace it?")
+                        .setPositiveButton("Replace", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog2, int which) {
+                                addTagToPhoto(tagType, tagValue);
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                // Add the tag
+                addTagToPhoto(tagType, tagValue);
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void addTagToPhoto(String tagType, String tagValue) {
+        Photo currentPhoto = photos.get(currentPosition);
+        Tag newTag = new Tag(tagType, tagValue);
+        currentPhoto.addTag(newTag);
+
+        // Save changes
+        saveChanges();
+
+        // Update tag display
+        displayTags();
+
+        Toast.makeText(this, "Tag added", Toast.LENGTH_SHORT).show();
+    }
+
+    private void displayTags() {
+        // Clear existing tags
+        tagChipGroup.removeAllViews();
+
+        // Get current photo
+        if (photos != null && currentPosition < photos.size()) {
+            Photo currentPhoto = photos.get(currentPosition);
+            List<Tag> tags = currentPhoto.getTags();
+
+            if (tags != null && !tags.isEmpty()) {
+                for (final Tag tag : tags) {
+                    // Create chip for this tag
+                    Chip chip = new Chip(this);
+                    chip.setText(tag.toString());
+                    chip.setTextColor(Color.WHITE);
+
+                    // Set different colors for different tag types
+                    if (tag.getType().equals(Tag.TYPE_PERSON)) {
+                        chip.setChipBackgroundColorResource(R.color.cornflowerBlue); // Person tag color
+                    } else {
+                        chip.setChipBackgroundColorResource(R.color.darkCyan); // Location tag color
+                    }
+
+                    // Add close icon to allow tag removal
+                    chip.setCloseIconVisible(true);
+                    chip.setCloseIconTint(ColorStateList.valueOf(Color.WHITE));
+                    chip.setOnCloseIconClickListener(v -> {
+                        // Remove tag
+                        currentPhoto.removeTag(tag);
 
                         // Save changes
                         List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
@@ -330,72 +425,39 @@ public class PhotoDisplayActivity extends AppCompatActivity {
                         DataStorage.saveAlbumsToStorage(this, albums);
 
                         // Update tag display
-                        displayTags();
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                        tagChipGroup.removeView(chip);
 
-//        new AlertDialog.Builder(this)
-//                .setTitle("Add Tag")
-//                .setView(input)
-//                .setPositiveButton("Add", (dialog, which) -> {
-//                    String tagName = input.getText().toString().trim();
-//                    if (!tagName.isEmpty()) {
-//                        Photo currentPhoto = photos.get(currentPosition);
-//                        currentPhoto.addTag(tagName);
-//
-//                        // Save changes
-//                        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
-//                        for (Album a : albums) {
-//                            if (a.getName().equals(albumTitle)) {
-//                                a.setPhotos(photos);
-//                                break;
-//                            }
-//                        }
-//                        DataStorage.saveAlbumsToStorage(this, albums);
-//
-//                        // Update tag display
-//                        displayTags();
-//                    }
-//                })
-//                .setNegativeButton("Cancel", null)
-//                .show();
-//    }
+                        Toast.makeText(PhotoDisplayActivity.this, "Tag removed", Toast.LENGTH_SHORT).show();
+                    });
 
-//    private void showCreateAlbumDialog() {
-//        final EditText input = new EditText(this);
-//        input.setInputType(InputType.TYPE_CLASS_TEXT);
-//        input.setHint("Album Name");
-//
-//        // Padding via FrameLayout container
-//        FrameLayout container = new FrameLayout(this);
-//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT
-//        );
-//        params.setMargins(50, 20, 50, 20);
-//        input.setLayoutParams(params);
-//        container.addView(input);
-//
-//        new androidx.appcompat.app.AlertDialog.Builder(this)
-//                .setTitle("Create New Album")
-//                .setView(container)
-//                .setPositiveButton("Create", (dialog, which) -> {
-//                    String albumName = input.getText().toString().trim();
-//                    if (albumName.isEmpty()) {
-//                        Toast.makeText(this, "Album name can't be empty", Toast.LENGTH_SHORT).show();
-//                        return;
-//                    }
-//                    if (isDuplicateName(albumName)) {
-//                        Toast.makeText(this, "Album with this name already exists", Toast.LENGTH_SHORT).show();
-//                        return;
-//                    }
-//                    addAlbumToList(albumName);
-//                })
-//                .setNegativeButton("Cancel", null)
-//                .show();
-//    }
+                    tagChipGroup.addView(chip);
+                }
+            }
+        }
+    }
+
+    private void saveChanges() {
+        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
+        boolean found = false;
+
+        for (Album a : albums) {
+            if (a.getName().equals(albumTitle)) {
+                // Directly update the photo in the album
+                List<Photo> albumPhotos = a.getPhotos();
+                if (currentPosition < albumPhotos.size()) {
+                    albumPhotos.set(currentPosition, photos.get(currentPosition));
+                }
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            // Save all albums
+            DataStorage.saveAlbumsToStorage(this, albums);
+        } else {
+            Log.e("PhotoDisplayActivity", "Could not find album " + albumTitle + " to save changes");
+        }
     }
 
     @Override

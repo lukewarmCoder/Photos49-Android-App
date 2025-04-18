@@ -52,7 +52,7 @@ public class AlbumActivity extends AppCompatActivity {
     private Album album;
     private List<Photo> photos;
     private RecyclerView photoRecyclerView;
-    private TextView albumTitleTextView;
+
     private static final int REQUEST_PICK_PHOTO = 101;
     private String albumTitle;
     private PhotoAdapter adapter;
@@ -63,15 +63,19 @@ public class AlbumActivity extends AppCompatActivity {
                     Uri selectedImageUri = result.getData().getData();
                     if (selectedImageUri != null) {
                         boolean alreadyExists = false;
-                        for (Photo p : album.getPhotos()) {
-                            if (p.getUri().equals(selectedImageUri.toString())) {
-                                alreadyExists = true;
-                                break;
+                        String existingAlbum = "";
+                        for (Album a : DataStorage.loadAlbumsFromStorage(this)) {
+                            for (Photo p : a.getPhotos()) {
+                                if (p.getUri().equals(selectedImageUri.toString())) {
+                                    alreadyExists = true;
+                                    existingAlbum = a.getName();
+                                    break;
+                                }
                             }
                         }
 
                         if (alreadyExists) {
-                            Toast.makeText(this, "Photo already exists in album.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Photo already exists in: " + existingAlbum, Toast.LENGTH_SHORT).show();
                         } else {
                             // Persist permission
                             final int takeMoreFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;

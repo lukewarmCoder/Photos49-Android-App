@@ -22,4 +22,12 @@
     <string name="slideshow">Slideshow</string>
     <string name="photo">Photo</string>
     <string name="photo_display">Photo display</string>
+    <string name="tag_type">Tag Type</string>
+    <string name="person">Person</string>
+    <string name="location">Location</string>
+    <string name="enter_value">Enter value</string>
+    <string name="tag_added">Tag added</string>
+    <string name="tag_removed">Tag removed</string>
+    <string name="replace_location">Replace Location</string>
+    <string name="select_tag_type">Select Tag Type:</string>
 </resources>

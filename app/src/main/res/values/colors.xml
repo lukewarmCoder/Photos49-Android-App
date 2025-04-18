@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="darkCyan">#008B8B</color>
     <color name="snow">#FFFAFA</color>
     <color name="cornflowerBlue">#6495ED</color>
     <color name="aliceBlue">#F0F8FF</color>
