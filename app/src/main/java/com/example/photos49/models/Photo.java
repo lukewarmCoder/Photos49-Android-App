@@ -1,24 +1,23 @@
 package com.example.photos49.models;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
 import java.util.UUID;
 
 public class Photo implements Serializable {
     private String id;
     private String uri;
-    private Date dateTaken;
     private List<Tag> tags;
     private String caption;
 
     public Photo(Uri imageUri) {
         this.id = UUID.randomUUID().toString();
         this.uri = imageUri.toString();
-        this.dateTaken = new Date();
         this.tags = new ArrayList<>();
     }
 
@@ -26,29 +25,29 @@ public class Photo implements Serializable {
         return id;
     }
 
-    public Uri getUri() {
-        return Uri.parse(uri);
+    public String getUri() {
+        return uri;
     }
 
-    public Date getDateTaken() {
-        return dateTaken;
-    }
-
-    public void setDateTaken(Date dateTaken) {
-        this.dateTaken = dateTaken;
-    }
+//    public Bitmap getThumbnail() {
+//        return thumbnail;
+//    }
+//
+//    public void setThumbnail(Bitmap thumbnail) {
+//        this.thumbnail = thumbnail;
+//    }
 
     public List<Tag> getTags() {
         return tags;
     }
 
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+//    public String getAlbumName() {
+//        return albumName;
+//    }
+//
+//    public void setAlbumName(String albumName) {
+//        this.albumName = albumName;
+//    }
 
     @Override
     public boolean equals(Object obj) {

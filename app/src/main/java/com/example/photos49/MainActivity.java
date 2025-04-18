@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
     private void deleteAlbum(Album album) {
         albums.remove(album);
         albumAdapter.notifyDataSetChanged();
+        DataStorage.saveAlbumsToStorage(this, albums);
         Toast.makeText(this, "Album deleted", Toast.LENGTH_SHORT).show();
     }
 

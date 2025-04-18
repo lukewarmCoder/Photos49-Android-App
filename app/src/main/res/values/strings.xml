@@ -11,4 +11,7 @@
     <string name="albums">Albums</string>
     <string name="photo_list">Photo List</string>
     <string name="add_photo">Add Photo</string>
+    <string name="photo_thumbnail">Photo thumbnail</string>
+    <string name="photo_options">Photo options</string>
+    <string name="move_to_album">Move to Album</string>
 </resources>

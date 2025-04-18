@@ -24,6 +24,10 @@ public class Album implements  Serializable {
         return photos;
     }
 
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
+
     public void addPhoto(Photo photo) {
         if (photo != null && !photos.contains(photo)) {
             photos.add(photo);
