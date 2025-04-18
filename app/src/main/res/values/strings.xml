@@ -30,4 +30,9 @@
     <string name="tag_removed">Tag removed</string>
     <string name="replace_location">Replace Location</string>
     <string name="select_tag_type">Select Tag Type:</string>
+    <string name="search_by_tag">Search by Tag</string>
+    <string name="search_photos_by_tags">Search Photos by Tags</string>
+    <string name="search">Search</string>
+    <string name="add_another_condition">Add another condition</string>
+    <string name="tag_value">Tag value</string>
 </resources>

@@ -70,13 +70,6 @@ public class Photo implements Serializable {
         }
     }
 
-
-
-    public void addTag(String tag) {
-        // todo
-    }
-
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Photo)) {

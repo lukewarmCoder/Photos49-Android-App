@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -38,18 +39,14 @@ import com.example.photos49.models.Photo;
 import com.example.photos49.util.DataStorage;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class AlbumActivity extends AppCompatActivity {
 
     private Album album;
+    private boolean isSearchResult = false;
+    private List<Photo> searchResults;
     private List<Photo> photos;
     private RecyclerView photoRecyclerView;
 
@@ -119,22 +116,48 @@ public class AlbumActivity extends AppCompatActivity {
 
         // Get album title from intent with the correct key
         albumTitle = getIntent().getStringExtra("album_name");
-        if (albumTitle != null && !albumTitle.isEmpty()) {
-            toolbarTitle.setText(albumTitle);
-        }
+        isSearchResult = getIntent().getBooleanExtra("is_search_result", false);
 
-        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
-        for (Album a : albums) {
-            if (a.getName().equals(albumTitle)) {
-                album = a;
-                break;
+        if (albumTitle != null && !albumTitle.isEmpty()) {
+            if (isSearchResult) {
+                toolbarTitle.setText("Search Results");
+            } else {
+                toolbarTitle.setText(albumTitle);
             }
         }
 
-        if (album == null) {
-            Toast.makeText(this, "Album not found!", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+        if (isSearchResult) {
+            // Handle search results using Serializable with proper API level check
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                searchResults = getIntent().getSerializableExtra("search_results", ArrayList.class);
+            } else {
+                searchResults = (ArrayList<Photo>) getIntent().getSerializableExtra("search_results");
+            }
+
+            // Create a temporary album with search results
+            album = new Album("Search Results");
+            if (searchResults != null) {
+                for (Photo photo : searchResults) {
+                    album.addPhoto(photo);
+                }
+            }
+            photos = album.getPhotos();
+        } else {
+            // Regular album, load from storage
+            List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
+            for (Album a : albums) {
+                if (a.getName().equals(albumTitle)) {
+                    album = a;
+                    break;
+                }
+            }
+
+            if (album == null) {
+                Toast.makeText(this, "Album not found!", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            photos = album.getPhotos();
         }
 
         // Set navigation icon (back button) manually to ensure visibility
@@ -148,42 +171,46 @@ public class AlbumActivity extends AppCompatActivity {
             toolbar.setNavigationIcon(navigationIcon);
         }
 
-
-        photoRecyclerView = findViewById(R.id.photoRecyclerView); // Make sure this ID exists in your XML
-        photos = album.getPhotos(); // assign to class variable
+        photoRecyclerView = findViewById(R.id.photoRecyclerView);
         adapter = new PhotoAdapter(this, photos, albumTitle, (view, photo, position) -> showPhotoMenu(view, photo, position));
         photoRecyclerView.setAdapter(adapter);
-        photoRecyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // or LinearLayoutManager
+        photoRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-
-        // FAB add photo click
+        // FAB add photo click - hide if showing search results
         FloatingActionButton fabAddPhoto = findViewById(R.id.fabAddPhoto);
-        fabAddPhoto.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.setType("image/*");
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            pickPhotoLauncher.launch(intent);
-        });
+        if (isSearchResult) {
+            fabAddPhoto.setVisibility(View.GONE);
+        } else {
+            fabAddPhoto.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("image/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                pickPhotoLauncher.launch(intent);
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        // Reload album data from storage
-        List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
-        for (Album a : albums) {
-            if (a.getName().equals(albumTitle)) {
-                album = a;
-                photos = album.getPhotos(); // Update the photos list reference
-                break;
+        // Don't reload search results from storage since they're temporary
+        if (!isSearchResult) {
+            // Reload album data from storage
+            List<Album> albums = DataStorage.loadAlbumsFromStorage(this);
+            for (Album a : albums) {
+                if (a.getName().equals(albumTitle)) {
+                    album = a;
+                    photos = album.getPhotos(); // Update the photos list reference
+                    break;
+                }
             }
-        }
 
-        // Refresh adapter with new data
-        if (adapter != null) {
-            adapter = new PhotoAdapter(this, photos, albumTitle, (view, photo, position) -> showPhotoMenu(view, photo, position));
-            photoRecyclerView.setAdapter(adapter);
+            // Refresh adapter with new data
+            if (adapter != null) {
+                adapter = new PhotoAdapter(this, photos, albumTitle, (view, photo, position) -> showPhotoMenu(view, photo, position));
+                photoRecyclerView.setAdapter(adapter);
+            }
         }
     }
 
@@ -212,8 +239,31 @@ public class AlbumActivity extends AppCompatActivity {
     }
 
     private void showPhotoMenu(View anchorView, Photo photo, int position) {
+        // Don't allow editing photos in search results
+        if (isSearchResult) {
+            // Show dialog to view original album instead
+            new AlertDialog.Builder(this)
+                    .setTitle("Search Result")
+                    .setMessage("This photo is part of search results. Would you like to see it in its original album?")
+                    .setPositiveButton("View Original", (dialog, which) -> {
+                        // Find the original album containing this photo
+                        String originalAlbumName = findOriginalAlbumName(photo);
+                        if (originalAlbumName != null) {
+                            // Open the original album
+                            Intent intent = new Intent(this, AlbumActivity.class);
+                            intent.putExtra("album_name", originalAlbumName);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(this, "Original album not found", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
+
         PopupMenu popupMenu = new PopupMenu(this, anchorView);
-        popupMenu.inflate(R.menu.photo_context_menu); // You said you had this ready
+        popupMenu.inflate(R.menu.photo_context_menu);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -242,6 +292,18 @@ public class AlbumActivity extends AppCompatActivity {
         });
 
         popupMenu.show();
+    }
+
+    private String findOriginalAlbumName(Photo photo) {
+        List<Album> allAlbums = DataStorage.loadAlbumsFromStorage(this);
+        for (Album album : allAlbums) {
+            for (Photo p : album.getPhotos()) {
+                if (p.equals(photo) || p.getUri().equals(photo.getUri())) {
+                    return album.getName();
+                }
+            }
+        }
+        return null;
     }
 
     private void handleMove(Photo photo, int position) {

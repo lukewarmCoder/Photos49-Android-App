@@ -1,0 +1,97 @@
+<!-- res/layout/search_by_tag_dialog.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search_photos_by_tags"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- First tag selection -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <Spinner
+            android:id="@+id/spinnerTagType1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTagValue1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginStart="8dp"
+            android:hint="@string/tag_value"
+            android:completionThreshold="1"/>
+    </LinearLayout>
+
+    <!-- Logical operator selection -->
+    <LinearLayout
+        android:id="@+id/logicalOperatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone">
+
+        <Spinner
+            android:id="@+id/spinnerLogicalOperator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- Second tag selection -->
+    <LinearLayout
+        android:id="@+id/secondTagLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <Spinner
+            android:id="@+id/spinnerTagType2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTagValue2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginStart="8dp"
+            android:hint="@string/tag_value"
+            android:completionThreshold="1"/>
+    </LinearLayout>
+
+    <!-- Button to add another tag condition -->
+    <Button
+        android:id="@+id/btnAddCondition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_another_condition"
+        android:layout_gravity="start"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Search button -->
+    <Button
+        android:id="@+id/btnPerformSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search"
+        android:background="@color/cornflowerBlue"
+        android:textColor="@android:color/white"/>
+
+</LinearLayout>
