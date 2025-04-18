@@ -2,7 +2,41 @@
 An Android application that can store and edit photos.
 
 ## Project Structure
-tbd
+```
+app/
+├── manifests/
+│   └── AndroidManifest.xml
+├── java/
+│   └── com/example/photos49/
+│       ├── activities/
+│       │   ├── AlbumActivity.java
+│       │   ├── MainActivity.java
+│       │   └── PhotoDisplayActivity.java
+│       ├── adapters/
+│       │   ├── AlbumAdapter.java
+│       │   └── PhotoAdapter.java
+│       ├── models/
+│       │   ├── Album.java
+│       │   ├── Photo.java
+│       │   └── Tag.java
+│       └── util/
+│           └── DataStorage.java
+├── res/
+│   ├── drawable/
+│   ├── layout/
+│   │   ├── activity_album.xml
+│   │   ├── activity_main.xml
+│   │   ├── activity_photo_display.xml
+│   │   ├── album_item.xml
+│   │   ├── dialog_add_tag.xml
+│   │   ├── item_photo_pager.xml
+│   │   ├── photo_item.xml
+│   │   └── search_by_tag_dialog.xml
+│   ├── menu/
+│   ├── mipmap/
+│   ├── values/
+│   └── xml/            
+```
 
 ## 🚀 Getting Started
 
