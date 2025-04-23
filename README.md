@@ -4,7 +4,7 @@ An Android application that can store and edit photos.
 ## Collaborators
 Luke Fernandez - lmf232
 
-Esha Tripathi - et522
+Christopher Louderback - cjl261
 
 ## Project Structure
 ```
