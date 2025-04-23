@@ -1,6 +1,11 @@
 # Photos49 Android App
 An Android application that can store and edit photos.
 
+## Collaborators
+Luke Fernandez - lmf232
+
+Esha Tripathi - et522
+
 ## Project Structure
 ```
 app/
