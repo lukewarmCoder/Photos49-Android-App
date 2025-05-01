@@ -66,3 +66,5 @@ app/
 
 **Note for lighter colored photos:** Each photo card has a three-dot menu in the top right corner for interactions. On light photos, it may be hard to see, but it’s still there.
 
+If you have any issues running the application, please reach out to us.
+
