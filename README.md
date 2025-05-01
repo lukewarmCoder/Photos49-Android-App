@@ -64,4 +64,5 @@ app/
 2. Click on the green **Run** button.
 3. The app will install and display on the selected device.
 
+**Note for lighter colored photos:** Each photo card has a three-dot menu in the top right corner for interactions. On light photos, it may be hard to see, but it’s still there.
 
